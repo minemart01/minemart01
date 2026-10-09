@@ -1,0 +1,6 @@
+{
+  "name": "MineMart Fashion E-Commerce",
+  "description": "MineMart is a premier modern fashion platform with direct shopping, authorized retailer integration, faceted discovery, orders, and an administrative control panel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
