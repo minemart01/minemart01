@@ -9,18 +9,18 @@ export const WishlistPage: React.FC = () => {
   const wishProducts = products.filter((p) => wishlist.includes(p.id));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-stone-200">
+      <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-stone-200">
         <div>
           <button
             onClick={() => setActiveView('catalog')}
-            className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-950 mb-2 font-medium"
+            className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-950 mb-1.5 font-medium"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Continue Shopping</span>
           </button>
-          <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900">
+          <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-semibold text-stone-900">
             Saved Wishlist
           </h1>
           <p className="text-xs text-stone-500 mt-0.5 tabular-nums">
@@ -31,7 +31,7 @@ export const WishlistPage: React.FC = () => {
 
       {/* Grid or Empty */}
       {wishProducts.length === 0 ? (
-        <div className="p-16 text-center bg-white border border-stone-200 rounded-xl space-y-3">
+        <div className="p-10 sm:p-16 text-center bg-white border border-stone-200 rounded-xl space-y-3">
           <Heart className="w-10 h-10 text-stone-300 mx-auto" />
           <h3 className="font-display text-lg font-semibold text-stone-900">Your wishlist is empty</h3>
           <p className="text-xs text-stone-500 max-w-sm mx-auto">
@@ -45,7 +45,7 @@ export const WishlistPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6">
           {wishProducts.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

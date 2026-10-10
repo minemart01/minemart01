@@ -88,16 +88,16 @@ export const UserProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10 space-y-6 sm:space-y-8">
       {/* Profile Header */}
-      <div className="bg-white border border-stone-200 rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xs">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-stone-100 border border-stone-200 rounded-full flex items-center justify-center text-stone-800 text-xl font-display font-semibold">
+      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 shadow-xs">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-stone-100 border border-stone-200 rounded-full flex items-center justify-center text-stone-800 text-lg sm:text-xl font-display font-semibold shrink-0">
             {currentUser.name.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-display text-2xl font-semibold text-stone-900">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-display text-xl sm:text-2xl font-semibold text-stone-900 truncate">
                 {currentUser.name}
               </h1>
               {isAdmin && (
@@ -107,15 +107,15 @@ export const UserProfilePage: React.FC = () => {
                 </span>
               )}
             </div>
-            <p className="text-xs text-stone-500 mt-0.5">{currentUser.email}</p>
+            <p className="text-xs text-stone-500 mt-0.5 truncate">{currentUser.email}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {isAdmin && (
             <button
               onClick={() => setActiveView('admin')}
-              className="px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold rounded flex items-center gap-1.5 transition-colors"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold rounded flex items-center gap-1.5 transition-colors"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
               <span>Admin Console</span>
@@ -124,7 +124,7 @@ export const UserProfilePage: React.FC = () => {
 
           <button
             onClick={logout}
-            className="px-3.5 py-2 text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-400 text-xs font-medium rounded flex items-center gap-1.5 transition-colors"
+            className="px-3 sm:px-3.5 py-1.5 sm:py-2 text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-400 text-xs font-medium rounded flex items-center gap-1.5 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -133,7 +133,7 @@ export const UserProfilePage: React.FC = () => {
       </div>
 
       {/* Profile Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-stone-200 pb-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 border-b border-stone-200 pb-2 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab('orders')}
           className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded transition-colors ${

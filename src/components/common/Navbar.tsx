@@ -63,34 +63,34 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenCart }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200">
       {/* Discreet Announcement Bar */}
-      <div className="bg-stone-900 text-stone-200 text-xs py-1.5 px-4 text-center font-normal tracking-wide flex items-center justify-center gap-3">
-        <span>Complimentary express delivery on orders over $150</span>
-        <span className="text-stone-500" aria-hidden="true">·</span>
-        <span className="hidden sm:inline">Authorized retail partner network with guaranteed authenticity</span>
+      <div className="bg-stone-900 text-stone-200 text-[10px] sm:text-xs py-1 sm:py-1.5 px-3 sm:px-4 text-center font-normal tracking-wide flex items-center justify-center gap-2 sm:gap-3 truncate">
+        <span className="truncate">Complimentary express delivery on orders over $150</span>
+        <span className="text-stone-500 hidden sm:inline" aria-hidden="true">·</span>
+        <span className="hidden md:inline">Authorized retail partner network with guaranteed authenticity</span>
       </div>
 
       {/* Main Navigation Bar - 3 Zone Contract */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 md:h-18 flex items-center justify-between gap-2 sm:gap-4">
         {/* Zone 1: Brand Wordmark */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={() => {
               setActiveView('home');
               setFilters((prev) => ({ ...prev, category: 'all', searchQuery: '' }));
             }}
-            className="text-left group flex items-center gap-2 focus:outline-none"
+            className="text-left group flex items-baseline sm:items-center gap-1.5 sm:gap-2 focus:outline-none"
             aria-label="MineMart Home"
           >
-            <span className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-stone-900 group-hover:text-stone-700 transition-colors">
+            <span className="font-display text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-stone-900 group-hover:text-stone-700 transition-colors">
               MineMart
             </span>
-            <span className="text-[10px] tracking-widest uppercase text-stone-500 font-sans font-medium self-end mb-1 border-l border-stone-300 pl-2">
-              Atelier & Curations
+            <span className="hidden sm:inline text-[10px] tracking-widest uppercase text-stone-500 font-sans font-medium border-l border-stone-300 pl-2">
+              Atelier
             </span>
           </button>
         </div>
 
-        {/* Zone 2: 4-6 Text Navigation Links */}
+        {/* Zone 2: 4-6 Text Navigation Links (Desktop) */}
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone-600">
           {categories.map((cat) => {
             const isActive = activeView === 'catalog' && filters.category === cat.slug;
@@ -114,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenCart }) => {
         </nav>
 
         {/* Zone 3: Primary Action Controls */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-3">
           {/* Quick Search */}
           {searchOpen ? (
             <form onSubmit={handleSearchSubmit} className="flex items-center relative">
@@ -122,14 +122,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenCart }) => {
                 type="text"
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                placeholder="Search coats, linen, sneakers..."
+                placeholder="Search fashion..."
                 autoFocus
-                className="w-48 sm:w-64 text-xs py-1.5 pl-3 pr-8 bg-stone-100 rounded border border-stone-300 focus:outline-none focus:border-stone-900 text-stone-900 placeholder:text-stone-400"
+                className="w-36 sm:w-56 md:w-64 text-xs py-1.5 pl-2.5 pr-7 bg-stone-100 rounded border border-stone-300 focus:outline-none focus:border-stone-900 text-stone-900 placeholder:text-stone-400"
               />
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
-                className="absolute right-2 text-stone-400 hover:text-stone-700"
+                className="absolute right-2 text-stone-400 hover:text-stone-700 p-0.5"
                 aria-label="Close search"
               >
                 <X className="w-3.5 h-3.5" />
@@ -138,22 +138,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenCart }) => {
           ) : (
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 text-stone-600 hover:text-stone-900 transition-colors rounded-md focus:outline-none"
+              className="p-1.5 sm:p-2 text-stone-600 hover:text-stone-900 transition-colors rounded-md focus:outline-none"
               aria-label="Open search input"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           )}
 
-          {/* Wishlist */}
+          {/* Wishlist (Desktop or tablet) */}
           <button
             onClick={() => setActiveView('wishlist')}
-            className="p-2 text-stone-600 hover:text-stone-900 transition-colors relative focus:outline-none"
+            className="hidden sm:flex p-1.5 sm:p-2 text-stone-600 hover:text-stone-900 transition-colors relative focus:outline-none"
             aria-label="Wishlist"
           >
-            <Heart className="w-5 h-5" />
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
             {wishlist.length > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-stone-900 text-white text-[10px] font-semibold flex items-center justify-center rounded-full tabular-nums">
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-stone-900 text-white text-[10px] font-semibold flex items-center justify-center rounded-full tabular-nums">
                 {wishlist.length}
               </span>
             )}
@@ -162,19 +162,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenCart }) => {
           {/* Bag / Cart */}
           <button
             onClick={onOpenCart}
-            className="p-2 text-stone-600 hover:text-stone-900 transition-colors relative focus:outline-none"
+            className="p-1.5 sm:p-2 text-stone-600 hover:text-stone-900 transition-colors relative focus:outline-none"
             aria-label="Shopping Cart"
           >
-            <ShoppingBag className="w-5 h-5" />
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
             {cartCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-stone-900 text-white text-[10px] font-semibold flex items-center justify-center rounded-full tabular-nums">
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-stone-900 text-white text-[10px] font-semibold flex items-center justify-center rounded-full tabular-nums">
                 {cartCount}
               </span>
             )}
           </button>
 
-          {/* Account / User Menu */}
-          <div className="relative">
+          {/* Account / User Menu (Desktop) */}
+          <div className="relative hidden sm:block">
             {currentUser ? (
               <div className="relative">
                 <button
@@ -249,13 +249,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenCart }) => {
             <span>Admin</span>
           </button>
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-stone-700 hover:text-stone-950 focus:outline-none"
+            className="md:hidden p-1.5 text-stone-700 hover:text-stone-950 focus:outline-none"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>

@@ -19,6 +19,7 @@ import { UserProfilePage } from './components/profile/UserProfilePage';
 import { WishlistPage } from './components/wishlist/WishlistPage';
 import { AdminPanel } from './components/admin/AdminPanel';
 import { AuthModal } from './components/auth/AuthModal';
+import { BottomNav } from './components/common/BottomNav';
 
 const StorefrontContent: React.FC = () => {
   const { activeView } = useStore();
@@ -26,7 +27,7 @@ const StorefrontContent: React.FC = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-stone-50 text-stone-900">
+    <div className="min-h-screen flex flex-col bg-stone-50 text-stone-900 pb-14 md:pb-0">
       {/* Top Bar Navigation */}
       <Navbar
         onOpenAuth={() => setAuthModalOpen(true)}
@@ -50,6 +51,12 @@ const StorefrontContent: React.FC = () => {
 
       {/* Footer */}
       <Footer />
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNav
+        onOpenAuth={() => setAuthModalOpen(true)}
+        onOpenCart={() => setCartDrawerOpen(true)}
+      />
 
       {/* Slide-out Cart Drawer */}
       <CartDrawer

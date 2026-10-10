@@ -106,12 +106,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ onOpenCart
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 sm:pb-24">
       {/* Back button & Breadcrumb */}
-      <div className="flex items-center justify-between mb-6 text-xs text-stone-500">
+      <div className="flex items-center justify-between mb-4 sm:mb-6 text-xs text-stone-500">
         <button
           onClick={() => setActiveView('catalog')}
-          className="flex items-center gap-1.5 text-stone-700 hover:text-stone-950 font-medium"
+          className="flex items-center gap-1.5 text-stone-700 hover:text-stone-950 font-medium py-1"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Catalog</span>
@@ -127,7 +127,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ onOpenCart
       </div>
 
       {/* Main Contiguous Purchase Module Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start">
         {/* Left Column: Gallery (7 Cols on desktop) */}
         <div className="lg:col-span-7 space-y-4">
           {/* Main Visual Display */}
@@ -577,7 +577,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ onOpenCart
               You May Also Admire
             </h2>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
