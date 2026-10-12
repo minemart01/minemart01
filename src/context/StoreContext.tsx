@@ -143,11 +143,30 @@ const DEFAULT_FILTERS: FilterState = {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Load state from localStorage or initial seed
+  // Load state from localStorage or initial seed (merging products from products.ts)
   const [products, setProducts] = useState<Product[]>(() => {
     try {
       const saved = localStorage.getItem('minemart_products_v2');
-      return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+      if (saved) {
+        const parsed: Product[] = JSON.parse(saved);
+        const savedMap = new Map(parsed.map((p) => [p.id, p]));
+
+        // Products defined in products.ts take precedence for code-level updates
+        const codeProductIds = new Set(INITIAL_PRODUCTS.map((p) => p.id));
+        const mergedFromCode = INITIAL_PRODUCTS.map((codeProd) => {
+          const localProd = savedMap.get(codeProd.id);
+          if (!localProd) return codeProd;
+          return {
+            ...localProd,
+            ...codeProd,
+          };
+        });
+
+        // Retain any custom products created via the Admin Console
+        const customAdminProducts = parsed.filter((p) => !codeProductIds.has(p.id));
+        return [...mergedFromCode, ...customAdminProducts];
+      }
+      return INITIAL_PRODUCTS;
     } catch {
       return INITIAL_PRODUCTS;
     }
