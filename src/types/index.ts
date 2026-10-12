@@ -40,6 +40,7 @@ export interface Product {
   isTrending: boolean;
   isNewArrival: boolean;
   isFeatured: boolean;
+  section?: string;
   createdAt: string;
 }
 
