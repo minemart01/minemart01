@@ -23,7 +23,7 @@ export const OUTFIT_ITEMS: OutfitItem[] = [
     id: 'item-001-1',
     outfitId: 'outfit-001',
     name: 'Pleated Mulberry Silk Midi Dress',
-    image: '/src/assets/images/product_womens_silk_dress_1791391911188.jpg',
+    image: 'https://res.cloudinary.com/dtz0urit6/image/upload/q_auto:best,f_jpg/cloudinary-tools-uploads/xdhjpixlg1ogend4kmmm',
     price: 220,
     originalPrice: 295,
     brand: 'MineMart Atelier Selection',
@@ -75,7 +75,7 @@ export const OUTFIT_ITEMS: OutfitItem[] = [
     id: 'item-002-1',
     outfitId: 'outfit-002',
     name: 'Oversized Cashmere-Merino Mock Neck Sweater',
-    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
+    image: 'https://res.cloudinary.com/dtz0urit6/image/upload/q_auto:best,f_jpg/cloudinary-tools-uploads/xdhjpixlg1ogend4kmmm',
     price: 195,
     originalPrice: 260,
     brand: 'MatchesFashion',
@@ -117,6 +117,22 @@ export const OUTFIT_ITEMS: OutfitItem[] = [
     productUrl: 'https://www.madewell.com/womens/accessories/bags',
     categoryTag: 'Bag',
     description: 'Generous everyday leather bag with magnetic tab and interior zipped pouch.',
+
+    
+  },
+   {
+    id: 'item-002-5',
+    outfitId: 'outfit-002',
+    name: 'Pebbled Leather Slouchy Shoulder Hobo',
+    image: 'https://res.cloudinary.com/dtz0urit6/image/upload/q_auto:best,f_jpg/cloudinary-tools-uploads/xdhjpixlg1ogend4kmmm',
+    price: 265,
+    originalPrice: 320,
+    brand: 'Madewell Affiliate',
+    productUrl: 'https://www.madewell.com/womens/accessories/bags',
+    categoryTag: 'Bag',
+    description: 'Generous everyday leather bag with magnetic tab and interior zipped pouch.',
+
+    
   },
 
   // --------------------------------------------------------------------------
