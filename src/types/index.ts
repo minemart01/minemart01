@@ -1,4 +1,79 @@
-export type CategorySlug = 'all' | 'men' | 'women' | 'kids' | 'footwear' | 'accessories';
+/**
+ * ============================================================================
+ * MINEMART CORE TYPE DEFINITIONS
+ * ============================================================================
+ */
+
+export interface Category {
+  id: string; // e.g. "aesthetic-women", "mens-fashion", "streetwear"
+  name: string;
+  image: string;
+  description: string;
+  kicker?: string;
+  itemCount?: number;
+  badge?: string;
+}
+
+export interface Outfit {
+  id: string; // e.g. "outfit-001"
+  categoryId: string; // references Category.id
+  title: string;
+  image: string;
+  description?: string;
+  isTrending?: boolean;
+  isNewArrival?: boolean;
+  isPopular?: boolean;
+  tags?: string[];
+  likes?: number;
+  featuredOrder?: number;
+}
+
+export interface OutfitItem {
+  id: string; // e.g. "item-001"
+  outfitId: string; // references Outfit.id
+  name: string;
+  image: string;
+  price?: number;
+  originalPrice?: number;
+  brand?: string;
+  productUrl: string; // Valid external retailer affiliate link
+  categoryTag?: string; // e.g. "Shirt", "Pants", "Shoes", "Bag", "Accessories", "Watch"
+  description?: string;
+}
+
+export interface HomeBanner {
+  id: string;
+  title: string;
+  subtitle: string;
+  tag: string;
+  image: string;
+  ctaText: string;
+  categoryId: string; // links to category
+  active: boolean;
+}
+
+export interface HomeSection {
+  id: string;
+  title: string;
+  kicker?: string;
+  description?: string;
+  type: 'carousel' | 'grid' | 'categories';
+  categoryId?: string; // target category when user clicks "View All"
+  outfitIds?: string[]; // specific curated outfit IDs, or auto-filtered if omitted
+  filterType?: 'trending' | 'new-arrivals' | 'popular' | 'category';
+  badge?: string;
+}
+
+/** Legacy & utility types preserved for backward compatibility */
+export type CategorySlug = 'all' | 'men' | 'women' | 'kids' | 'footwear' | 'accessories' | string;
+
+export interface CategoryInfo {
+  slug: CategorySlug;
+  name: string;
+  description: string;
+  image: string;
+  itemCount: number;
+}
 
 export interface ProductColor {
   name: string;
@@ -34,7 +109,7 @@ export interface Product {
   };
   sizes: string[];
   colors: ProductColor[];
-  isDirectSale: boolean; // true = Sold directly by MineMart; false = External authorized partner
+  isDirectSale: boolean;
   stock: number;
   externalPartner?: ExternalPartner;
   isTrending: boolean;
@@ -53,14 +128,6 @@ export interface Banner {
   linkCategory?: CategorySlug;
   ctaText: string;
   active: boolean;
-}
-
-export interface CategoryInfo {
-  slug: CategorySlug;
-  name: string;
-  description: string;
-  image: string;
-  itemCount: number;
 }
 
 export interface Address {
@@ -84,7 +151,7 @@ export interface User {
 }
 
 export interface CartItem {
-  id: string; // unique item id = `${productId}-${selectedSize}-${selectedColor}`
+  id: string;
   productId: string;
   product: Product;
   quantity: number;
