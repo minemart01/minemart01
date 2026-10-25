@@ -1,18 +1,3 @@
-/**
- * ============================================================================
- * MINEMART OUTFIT ITEMS CATALOG (src/data/outfitItems.ts)
- * ============================================================================
- * 
- * This file contains the individual pieces that make up each complete outfit.
- * 
- * TO ADD A NEW PRODUCT ITEM TO AN OUTFIT:
- * 1. Find the `outfitId` of the look you want to connect it to (e.g. "outfit-001").
- * 2. Copy one of the item entries below and paste it into the `OUTFIT_ITEMS` array.
- * 3. Give it a unique `id` (e.g. "item-101"), name, photo URL, price, and affiliate `productUrl`.
- * 4. Save the file. When a visitor views that outfit, your new item will be right there with its "Shop Now" link!
- * ============================================================================
- */
-
 import { OutfitItem } from '../types';
 
 export const OUTFIT_ITEMS: OutfitItem[] = [
