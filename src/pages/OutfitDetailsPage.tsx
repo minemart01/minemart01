@@ -160,14 +160,25 @@ export const OutfitDetailsPage: React.FC<OutfitDetailsPageProps> = ({
 
               {/* Look Info Box */}
               <div className="p-4 sm:p-5 space-y-2.5">
-                {category && (
-                  <button
-                    onClick={() => onSelectCategory(category.id)}
-                    className="text-[11px] font-bold uppercase tracking-widest text-amber-700 hover:underline block cursor-pointer"
-                  >
-                    Collection: {category.name}
-                  </button>
-                )}
+                <div className="flex items-center justify-between">
+                  {category && (
+                    <button
+                      onClick={() => onSelectCategory(category.id)}
+                      className="text-[11px] font-bold uppercase tracking-widest text-amber-700 hover:underline block cursor-pointer"
+                    >
+                      Collection: {category.name}
+                    </button>
+                  )}
+                  {outfit.price ? (
+                    <span className="text-xs font-bold text-stone-900 bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded">
+                      Complete Look: {outfit.price}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
+                      Curated Look
+                    </span>
+                  )}
+                </div>
                 <h1 className="font-display text-lg sm:text-xl md:text-2xl font-bold text-stone-900 leading-snug">
                   {outfit.title}
                 </h1>

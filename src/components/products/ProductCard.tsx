@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import { OutfitItem } from '../../types';
-import { ExternalLink, Tag, ShieldCheck } from 'lucide-react';
+import { ExternalLink, Tag } from 'lucide-react';
 
 interface ProductCardProps {
   item: OutfitItem;
-  itemNumber?: number;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ item, itemNumber }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ item }) => {
   const [imageError, setImageError] = useState(false);
 
+  const formatPrice = (val?: string | number) => {
+    if (val === undefined || val === null || val === '') return null;
+    const str = String(val).trim();
+    if (str.startsWith('₹') || str.startsWith('$') || str.startsWith('€') || str.startsWith('£')) {
+      return str;
+    }
+    return `₹${str}`;
+  };
+
+  const formattedPrice = formatPrice(item.price);
+  const formattedOriginalPrice = formatPrice(item.originalPrice);
+
   const discountPercent =
-    item.price && item.originalPrice && item.originalPrice > item.price
-      ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
+    item.price && item.originalPrice && Number(item.originalPrice) > Number(item.price)
+      ? Math.round(((Number(item.originalPrice) - Number(item.price)) / Number(item.originalPrice)) * 100)
       : null;
 
   return (
@@ -32,16 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, itemNumber }) =>
             className="w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-300"
           />
 
-          {/* Item Number Badge (e.g. #1, #2) */}
-          {itemNumber !== undefined && (
-            <div className="absolute top-2 left-2 z-10">
-              <span className="w-6 h-6 rounded-full bg-stone-900/90 text-white text-[11px] font-bold flex items-center justify-center shadow-xs">
-                {itemNumber}
-              </span>
-            </div>
-          )}
-
-          {/* Category Tag (e.g. Shoes, Bag, Dress) */}
+          {/* Category Tag (e.g. Shirt, Shoes, Bag) */}
           {item.categoryTag && (
             <div className="absolute top-2 right-2 z-10">
               <span className="text-[10px] font-semibold uppercase tracking-wider bg-white/90 backdrop-blur-xs text-stone-800 px-2 py-0.5 rounded shadow-xs border border-stone-200">
@@ -81,14 +83,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, itemNumber }) =>
 
           {/* Pricing */}
           <div className="flex items-baseline gap-2 pt-1">
-            {item.price !== undefined ? (
+            {formattedPrice ? (
               <>
                 <span className="text-sm sm:text-base font-bold text-stone-900">
-                  ${item.price}
+                  {formattedPrice}
                 </span>
-                {item.originalPrice && item.originalPrice > item.price && (
+                {formattedOriginalPrice && (
                   <span className="text-xs text-stone-400 line-through">
-                    ${item.originalPrice}
+                    {formattedOriginalPrice}
                   </span>
                 )}
               </>
@@ -112,7 +114,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, itemNumber }) =>
           <span>Shop Now</span>
           <ExternalLink className="w-3.5 h-3.5 text-amber-400 group-hover/btn:translate-x-0.5 transition-transform" />
         </a>
-        <p className="text-[9px] text-stone-600 text-center mt-1.5">
+        <p className="text-[9px] text-stone-400 text-center mt-1.5">
           Opens on authorized retailer
         </p>
       </div>

@@ -91,7 +91,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
 
           <div className="max-w-2xl space-y-2">
             {category.kicker && (
-              <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400 block">
                 {category.kicker}
               </span>
             )}
@@ -119,10 +119,10 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
           <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
             <Compass className="w-3.5 h-3.5" />
-            <span>Switch Collection:</span>
+            <span>Collections:</span>
           </span>
           {CATEGORIES.map((cat) => {
-            const isCurrent = cat.id === categoryId;
+            const isCurrent = cat.id.toLowerCase() === category.id.toLowerCase();
             return (
               <button
                 key={cat.id}
@@ -137,7 +137,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
                     : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400 hover:text-stone-900'
                 }`}
               >
-                {cat.name}
+                <span>{cat.name}</span>
               </button>
             );
           })}

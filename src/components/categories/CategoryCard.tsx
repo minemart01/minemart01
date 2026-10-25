@@ -48,6 +48,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           </div>
         )}
 
+
         {/* Bottom Content Overlay */}
         <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3 sm:left-3 sm:right-3 text-white z-10">
           {category.kicker && (

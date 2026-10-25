@@ -20,6 +20,7 @@ export interface Outfit {
   title: string;
   image: string;
   description?: string;
+  price?: string | number;
   isTrending?: boolean;
   isNewArrival?: boolean;
   isPopular?: boolean;

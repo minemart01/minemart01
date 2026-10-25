@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outfit } from '../../types';
 import { getItemsByOutfit } from '../../data/outfitItems';
-import { Sparkles, Heart, ArrowRight, Layers } from 'lucide-react';
+import { Sparkles, ArrowRight, Layers, Tag } from 'lucide-react';
 
 interface OutfitCardProps {
   outfit: Outfit;
@@ -17,6 +17,9 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
   const [imageError, setImageError] = useState(false);
   const items = getItemsByOutfit(outfit.id);
   const itemCount = items.length;
+
+  // Format first item price or estimated total
+  const firstItemPrice = items.length > 0 && items[0].price ? items[0].price : null;
 
   return (
     <div
@@ -41,10 +44,10 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
         />
 
-        {/* Gradient Scrim for subtle bottom text contrast if needed */}
+        {/* Gradient Scrim for subtle bottom text contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* Top Badges */}
+        {/* Top-Left Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
           {outfit.isTrending && (
             <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-stone-900 text-white px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
@@ -58,6 +61,7 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
             </span>
           )}
         </div>
+
 
         {/* Piece Count Badge */}
         {itemCount > 0 && (
@@ -73,11 +77,18 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
       {/* Outfit Card Details */}
       <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2">
         <div className="space-y-1">
-          {outfit.tags && outfit.tags.length > 0 && (
-            <span className="text-[10px] uppercase font-semibold tracking-wider text-amber-700 block truncate">
-              {outfit.tags[0]}
-            </span>
-          )}
+          <div className="flex items-center justify-between text-[10px]">
+            {outfit.tags && outfit.tags.length > 0 && (
+              <span className="uppercase font-semibold tracking-wider text-amber-700 block truncate">
+                {outfit.tags[0]}
+              </span>
+            )}
+            {firstItemPrice && (
+              <span className="font-semibold text-stone-900">
+                From ₹{firstItemPrice}
+              </span>
+            )}
+          </div>
 
           <h3 className="font-display text-xs sm:text-sm font-bold text-stone-900 leading-snug line-clamp-2 group-hover:text-amber-900 transition-colors">
             {outfit.title}
