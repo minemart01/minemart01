@@ -32,7 +32,7 @@ export const SECTION_2_PRODUCTS: SimpleSectionProduct[] = [
     id: '2.1',
     aliasId: 'outfit-005',
     title: 'Unstructured Linen-Wool Blazer & Tailored Chino Set',
-    image: '/src/assets/images/product_mens_linen_jacket_1791391886873.jpg',
+    image: '',
     price: '₹5,499',
     description: 'Versatile contemporary tailoring: single-breasted beige linen blazer, crisp white poplin shirt, and olive pleated trousers.',
     isTrending: true,

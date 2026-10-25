@@ -54,7 +54,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete }) => {
       {/* Editorial Fashion Background with Vignette */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1600&q=80"
+          src="https://res.cloudinary.com/dtz0urit6/image/upload/q_auto:best,f_jpg/cloudinary-tools-uploads/rb3hxtglcvmh1ftjfuun"
           alt="Fashion editorial aesthetic"
           className="w-full h-full object-cover object-center filter brightness-[0.28] contrast-125 scale-105 transition-transform duration-[4000ms] ease-out transform"
         />
