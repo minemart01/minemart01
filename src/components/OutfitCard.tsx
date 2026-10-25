@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outfit } from '../data/types';
-import { Layers, ArrowRight, Sparkles } from 'lucide-react';
+import { Layers, ArrowRight, Sparkles, Heart } from 'lucide-react';
+import { useWishlist } from '../context/WishlistContext';
 
 interface OutfitCardProps {
   outfit: Outfit;
@@ -14,6 +15,8 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
   variant = 'slider',
 }) => {
   const [imgError, setImgError] = useState(false);
+  const { isLiked, toggleLike } = useWishlist();
+  const liked = isLiked(outfit.id);
 
   // Fallback fashion image
   const displayImage = imgError
@@ -51,6 +54,21 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
             </span>
           </div>
         )}
+
+        {/* Heart Like Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleLike(outfit.id);
+          }}
+          className={`absolute top-2.5 right-2.5 z-10 p-1.5 rounded-full backdrop-blur-xs shadow-md transition-all active:scale-90 cursor-pointer ${
+            liked ? 'bg-red-500 text-white' : 'bg-stone-900/70 text-white hover:bg-stone-900'
+          }`}
+          aria-label={liked ? 'Unlike outfit' : 'Like outfit'}
+          title={liked ? 'Liked' : 'Like'}
+        >
+          <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-current text-white' : 'text-stone-200'}`} />
+        </button>
 
         {/* 5 Pieces Count Badge */}
         <div className="absolute bottom-2.5 right-2.5 z-10">
