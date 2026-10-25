@@ -10,8 +10,9 @@ export interface ProductItem {
   name: string;
   price: string | number;
   originalPrice?: string | number;
-  image: string;
-  productUrl: string; // Affiliate purchase URL opened on "Buy Now"
+  image: string; // Primary product image
+  images?: string[]; // Optional 1-5 gallery photos for product quick-view modal
+  productUrl: string; // Affiliate purchase URL opened on "Shop Now"
   categoryTag?: string; // e.g. "Dress", "Shoes", "Watch", "Bag", "Shirt"
   brand?: string;
   description?: string;

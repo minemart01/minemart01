@@ -10,21 +10,27 @@ import { Header } from './components/Header';
 import { IntroScreen } from './components/IntroScreen';
 import { Home } from './pages/Home';
 import { OutfitDetails } from './pages/OutfitDetails';
-import { ALL_SECTIONS, ALL_OUTFITS, getOutfitById } from './data/allSections';
+import { WishlistPage } from './pages/WishlistPage';
+import { WishlistProvider, useWishlist } from './context/WishlistContext';
+import { ALL_SECTIONS } from './data/allSections';
 import { Sparkles, ShieldCheck, Heart, Home as HomeIcon, Compass, ArrowUp } from 'lucide-react';
 
-export default function App() {
+function AppContent() {
   const [showIntro, setShowIntro] = useState<boolean>(true);
-  const [currentView, setCurrentView] = useState<'home' | 'outfit-details'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'outfit-details' | 'wishlist'>('home');
   const [selectedSectionId, setSelectedSectionId] = useState<string>('section1');
   const [selectedOutfitId, setSelectedOutfitId] = useState<string>('s1-o1');
   const [showBackToTop, setShowBackToTop] = useState(false);
+
+  const { totalUniqueCount } = useWishlist();
 
   // Synchronize with URL hash for seamless browser back/forward history
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace(/^#\/?/, '');
-      if (hash.startsWith('outfit=')) {
+      if (hash === 'wishlist' || hash === 'saved') {
+        setCurrentView('wishlist');
+      } else if (hash.startsWith('outfit=')) {
         const outId = hash.replace('outfit=', '');
         setSelectedOutfitId(outId);
         setCurrentView('outfit-details');
@@ -59,6 +65,12 @@ export default function App() {
   const navigateToHome = () => {
     setCurrentView('home');
     window.location.hash = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToWishlist = () => {
+    setCurrentView('wishlist');
+    window.location.hash = 'saved';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -99,11 +111,13 @@ export default function App() {
       {/* 2. Global Navigation Header */}
       <Header
         onNavigateHome={navigateToHome}
+        onNavigateWishlist={navigateToWishlist}
         onSelectSection={navigateToSection}
         onSelectOutfit={navigateToOutfit}
         onReplayIntro={() => setShowIntro(true)}
         currentSectionId={selectedSectionId}
         isDetailsPage={currentView === 'outfit-details'}
+        isWishlistPage={currentView === 'wishlist'}
       />
 
       {/* 3. Main Views */}
@@ -123,6 +137,14 @@ export default function App() {
             onSelectOutfit={navigateToOutfit}
           />
         )}
+
+        {currentView === 'wishlist' && (
+          <WishlistPage
+            onNavigateHome={navigateToHome}
+            onSelectOutfit={navigateToOutfit}
+            onSelectSection={navigateToSection}
+          />
+        )}
       </div>
 
       {/* 4. Back to Top Floating Button */}
@@ -137,10 +159,10 @@ export default function App() {
       )}
 
       {/* 5. Mobile Quick Bottom Navigation Bar */}
-      <nav className="sm:hidden fixed bottom-0 inset-x-0 bg-stone-900/98 backdrop-blur-md text-stone-300 border-t border-stone-800 z-30 px-3 py-1 flex items-center justify-around text-[10px]">
+      <nav className="sm:hidden fixed bottom-0 inset-x-0 bg-stone-900/98 backdrop-blur-md text-stone-300 border-t border-stone-800 z-30 px-2 py-1 flex items-center justify-around text-[10px]">
         <button
           onClick={navigateToHome}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-colors cursor-pointer ${
+          className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg transition-colors cursor-pointer ${
             currentView === 'home' ? 'text-amber-400 font-bold' : 'text-stone-400 hover:text-white'
           }`}
         >
@@ -150,7 +172,7 @@ export default function App() {
 
         <button
           onClick={() => navigateToSection('section1')}
-          className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg text-stone-400 hover:text-white transition-colors cursor-pointer"
+          className="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg text-stone-400 hover:text-white transition-colors cursor-pointer"
         >
           <Compass className="w-4 h-4 text-amber-400" />
           <span>Women</span>
@@ -158,18 +180,27 @@ export default function App() {
 
         <button
           onClick={() => navigateToSection('section2')}
-          className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg text-stone-400 hover:text-white transition-colors cursor-pointer"
+          className="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg text-stone-400 hover:text-white transition-colors cursor-pointer"
         >
           <Sparkles className="w-4 h-4 text-amber-400" />
           <span>Men</span>
         </button>
 
         <button
-          onClick={() => navigateToSection('section3')}
-          className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg text-stone-400 hover:text-white transition-colors cursor-pointer"
+          onClick={navigateToWishlist}
+          className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg transition-colors cursor-pointer relative ${
+            currentView === 'wishlist' ? 'text-amber-400 font-bold' : 'text-stone-400 hover:text-white'
+          }`}
         >
-          <Compass className="w-4 h-4 text-amber-400" />
-          <span>Streetwear</span>
+          <div className="relative">
+            <Heart className={`w-4 h-4 ${totalUniqueCount > 0 ? 'text-red-500 fill-current' : 'text-stone-400'}`} />
+            {totalUniqueCount > 0 && (
+              <span className="absolute -top-1.5 -right-2.5 bg-red-600 text-white text-[8px] font-bold px-1 rounded-full min-w-[14px] text-center shadow-xs">
+                {totalUniqueCount}
+              </span>
+            )}
+          </div>
+          <span>Saved</span>
         </button>
       </nav>
 
@@ -270,6 +301,12 @@ export default function App() {
                   </button>
                 </li>
                 <li>
+                  <button onClick={navigateToWishlist} className="hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-1.5">
+                    <Heart className="w-3 h-3 text-red-400 fill-current" />
+                    <span>My Saved Looks &amp; Wishlist ({totalUniqueCount})</span>
+                  </button>
+                </li>
+                <li>
                   <button onClick={() => setShowIntro(true)} className="hover:text-amber-300 transition-colors cursor-pointer">
                     Replay Opening Intro
                   </button>
@@ -293,5 +330,13 @@ export default function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <WishlistProvider>
+      <AppContent />
+    </WishlistProvider>
   );
 }

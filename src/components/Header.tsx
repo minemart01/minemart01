@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ALL_SECTIONS } from '../data/allSections';
+import { useWishlist } from '../context/WishlistContext';
 import {
   Sparkles,
   Search,
@@ -7,30 +8,35 @@ import {
   X,
   Compass,
   ArrowRight,
-  ExternalLink,
   RotateCcw,
+  Heart,
 } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateHome: () => void;
+  onNavigateWishlist?: () => void;
   onSelectSection: (sectionId: string) => void;
   onSelectOutfit: (outfitId: string) => void;
   onReplayIntro?: () => void;
   currentSectionId?: string;
   isDetailsPage?: boolean;
+  isWishlistPage?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onNavigateHome,
+  onNavigateWishlist,
   onSelectSection,
   onSelectOutfit,
   onReplayIntro,
   currentSectionId,
   isDetailsPage,
+  isWishlistPage,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { totalUniqueCount } = useWishlist();
 
   // Collect all searchable outfits
   const allOutfits = ALL_SECTIONS.flatMap((s) => s.outfits);
@@ -46,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({
     : [];
 
   return (
-    <header className="sticky top-0 z-40 bg-stone-900/98 backdrop-blur-md text-white border-b border-stone-800 shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-stone-900/98 backdrop-blur-md text-white border-b border-stone-800 shadow-md">
       {/* Top Banner with Brand Tagline & Transparency */}
       <div className="bg-stone-950 text-stone-300 text-[11px] py-1 px-4 text-center border-b border-stone-800/80 font-medium tracking-wide flex items-center justify-between sm:justify-center gap-3">
         <div className="flex items-center gap-2">
@@ -139,23 +145,53 @@ export const Header: React.FC<HeaderProps> = ({
             })}
           </nav>
 
-          {/* Right Action Controls: Search & Mobile Menu */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search Trigger */}
+          {/* Right Action Controls: Search, Wishlist (Desktop only) & Mobile Menu */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 lg:flex-initial justify-end min-w-0">
+            {/* Search Trigger - Expanded to use freed space on mobile */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 bg-stone-800/90 hover:bg-stone-700/80 text-stone-300 hover:text-white px-3 sm:px-4 py-2 rounded-lg text-xs tracking-wide transition-all border border-stone-700/70 cursor-pointer shadow-2xs"
+              className="flex-1 sm:flex-initial max-w-[280px] sm:max-w-none flex items-center gap-2 bg-stone-800/90 hover:bg-stone-700/80 text-stone-300 hover:text-white px-3 sm:px-4 py-2 rounded-lg text-xs tracking-wide transition-all border border-stone-700/70 cursor-pointer shadow-2xs min-w-0 justify-start"
               aria-label="Search outfits and pieces"
             >
-              <Search className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Search outfits, pieces...</span>
-              <span className="sm:hidden text-xs">Search</span>
+              <Search className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="truncate">Search outfits, pieces...</span>
+            </button>
+
+            {/* Wishlist / Saved Looks Button (Visible ONLY on Desktop/Tablet, Hidden on Mobile Header) */}
+            <button
+              onClick={() => {
+                if (onNavigateWishlist) {
+                  onNavigateWishlist();
+                  setMobileMenuOpen(false);
+                }
+              }}
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border cursor-pointer relative ${
+                isWishlistPage
+                  ? 'bg-amber-400/20 border-amber-400 text-amber-300'
+                  : 'bg-stone-800/90 hover:bg-stone-700/80 text-stone-300 hover:text-white border-stone-700/70'
+              }`}
+              aria-label={`Wishlist and saved outfits (${totalUniqueCount} saved)`}
+              title="Saved Outfits & Wishlist"
+            >
+              <div className="relative flex items-center justify-center">
+                <Heart
+                  className={`w-4 h-4 transition-colors ${
+                    totalUniqueCount > 0 ? 'text-red-500 fill-current' : 'text-stone-300'
+                  }`}
+                />
+                {totalUniqueCount > 0 && (
+                  <span className="absolute -top-2.5 -right-2.5 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-xs">
+                    {totalUniqueCount}
+                  </span>
+                )}
+              </div>
+              <span className="hidden sm:inline font-medium ml-1">Wishlist</span>
             </button>
 
             {/* Mobile Menu Hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-stone-300 hover:text-white hover:bg-stone-800 rounded-lg transition-colors focus:outline-none cursor-pointer"
+              className="lg:hidden p-2 text-stone-300 hover:text-white hover:bg-stone-800 rounded-lg transition-colors focus:outline-none cursor-pointer shrink-0"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -182,6 +218,26 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Compass className="w-4 h-4 text-amber-400" />
               <span>Explore All (Homepage)</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (onNavigateWishlist) onNavigateWishlist();
+                setMobileMenuOpen(false);
+              }}
+              className={`flex items-center justify-between p-3 rounded-lg text-xs font-semibold border cursor-pointer ${
+                isWishlistPage
+                  ? 'bg-amber-400/20 border-amber-400 text-amber-300'
+                  : 'bg-stone-850 text-stone-200 hover:bg-stone-800 border-stone-800'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Heart className={`w-4 h-4 ${totalUniqueCount > 0 ? 'text-red-500 fill-current' : 'text-stone-400'}`} />
+                <span>Saved Looks &amp; Wishlist</span>
+              </div>
+              <span className="text-[10px] font-bold bg-stone-900 text-amber-400 px-2 py-0.5 rounded-full border border-stone-700">
+                {totalUniqueCount}
+              </span>
             </button>
 
             {ALL_SECTIONS.map((sec, idx) => (

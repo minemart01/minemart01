@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Outfit } from '../data/types';
+import { Outfit, ProductItem } from '../data/types';
 import { ALL_SECTIONS, getOutfitById } from '../data/allSections';
-import { ProductCard } from '../components/ProductCard';
 import { OutfitCard } from '../components/OutfitCard';
+import { ProductQuickViewModal } from '../components/ProductQuickViewModal';
+import { useWishlist } from '../context/WishlistContext';
 import {
   ArrowLeft,
   ChevronRight,
@@ -10,8 +11,10 @@ import {
   Sparkles,
   Layers,
   Heart,
+  Bookmark,
   Share2,
   Check,
+  ExternalLink,
 } from 'lucide-react';
 
 interface OutfitDetailsProps {
@@ -30,11 +33,15 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
   const outfit = getOutfitById(outfitId) || ALL_SECTIONS[0].outfits[0];
   const section = ALL_SECTIONS.find((s) => s.id === outfit.sectionId);
 
+  const { isLiked, isWishlisted, toggleLike, toggleWishlist } = useWishlist();
+  const liked = isLiked(outfit.id);
+  const wishlisted = isWishlisted(outfit.id);
+
   // Images for thumbnail switcher (defaults to [outfit.image] if not specified)
   const imageList = outfit.images && outfit.images.length > 0 ? outfit.images : [outfit.image];
   const [selectedImage, setSelectedImage] = useState<string>(imageList[0]);
-  const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductItem | null>(null);
 
   // Sync selected image if outfit changes
   React.useEffect(() => {
@@ -57,11 +64,11 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
     : [];
 
   return (
-    <div className="space-y-8 sm:space-y-12 pb-20">
+    <div className="space-y-5 sm:space-y-8 pb-20">
       {/* Top Breadcrumb Navigation */}
       <div className="bg-stone-100 border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 text-xs">
-          <nav className="flex items-center gap-1.5 sm:gap-2 text-stone-500 overflow-x-auto no-scrollbar">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 text-xs">
+          <nav className="flex items-center gap-1.5 sm:gap-2 text-stone-500 overflow-x-auto no-scrollbar min-w-0">
             <button
               onClick={onNavigateHome}
               className="hover:text-stone-900 transition-colors flex items-center gap-1 cursor-pointer shrink-0 font-medium"
@@ -74,205 +81,260 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
               <>
                 <button
                   onClick={() => onSelectSection(section.id)}
-                  className="hover:text-stone-900 transition-colors font-medium truncate max-w-[140px] sm:max-w-none cursor-pointer shrink-0"
+                  className="hover:text-stone-900 transition-colors font-medium truncate max-w-[100px] sm:max-w-none cursor-pointer shrink-0"
                 >
                   {section.title}
                 </button>
                 <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
               </>
             )}
-            <span className="text-stone-900 font-semibold truncate max-w-[180px] sm:max-w-md">
+            <span className="text-stone-900 font-semibold truncate max-w-[140px] sm:max-w-md">
               {outfit.name}
             </span>
           </nav>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleShare}
-              className="flex items-center gap-1 text-[11px] font-medium text-stone-700 hover:text-stone-900 bg-white border border-stone-200 px-2.5 py-1 rounded shadow-2xs transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-[11px] font-medium text-stone-700 hover:text-stone-900 bg-white border border-stone-200 px-2 py-1 rounded shadow-2xs transition-colors cursor-pointer"
             >
               {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Share2 className="w-3 h-3" />}
-              <span>{copied ? 'Link Copied' : 'Share Look'}</span>
+              <span className="hidden sm:inline">{copied ? 'Link Copied' : 'Share Look'}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Two-Column Layout */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          {/* ===================================================================
-              LEFT SIDE: Large Outfit Photo + Small Clickable Thumbnails
-              =================================================================== */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm relative lg:sticky lg:top-24">
-              {/* Main Large Photo */}
-              <div className="aspect-[3/4] bg-stone-100 overflow-hidden relative">
-                <img
-                  src={selectedImage}
-                  alt={outfit.name}
-                  className="w-full h-full object-cover object-center transition-all duration-300"
-                />
+      {/* =======================================================================
+          THE MAIN BOX: ONE CONNECTED OUTFIT CONTAINER (Mobile & Desktop)
+          - LEFT SIDE: Product list of all individual products (Shirt, Pants, Shoes, etc.)
+          - RIGHT SIDE: Complete outfit photo (vertically centered, object-contain)
+          ======================================================================= */}
+      <main className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-3.5 sm:p-6 overflow-hidden">
+          {/* Main Box Header: Visual Grouping & Heading */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 sm:pb-4 border-b border-stone-100">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3 h-3 text-amber-600" />
+                  <span>Complete the Look</span>
+                </span>
+                <span className="text-[10px] sm:text-xs text-stone-500 font-medium">
+                  {outfit.items.length} Shoppable Pieces
+                </span>
+              </div>
+              <h1 className="font-display text-base sm:text-2xl font-bold text-stone-900 leading-snug mt-1.5">
+                {outfit.name}
+              </h1>
+            </div>
 
-                {/* Trending Badge */}
-                {outfit.isTrending && (
-                  <div className="absolute top-3 left-3 z-10">
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-stone-900 text-white px-2.5 py-1 rounded shadow-sm flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-amber-400" />
-                      <span>Trending Look</span>
-                    </span>
-                  </div>
-                )}
+            {outfit.price && (
+              <div className="sm:text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
+                <span className="text-xs sm:text-base font-bold text-stone-900 bg-amber-50 text-amber-950 border border-amber-200 px-2.5 py-1 rounded">
+                  {outfit.price}
+                </span>
+                <span className="text-[10px] text-stone-400">Complete Look</span>
+              </div>
+            )}
+          </div>
 
-                {/* Wishlist Button */}
-                <div className="absolute top-3 right-3 z-10">
+          {/* Connected Two-Column Layout: OUTFIT PHOTO LEFT | PRODUCTS AND SHOPPING LINKS RIGHT */}
+          <div className="grid grid-cols-12 gap-2.5 sm:gap-6 lg:gap-8 pt-3 sm:pt-6 items-stretch">
+            {/* ===============================================================
+                LEFT SIDE: The Complete Outfit Photo
+                - Vertically centered within its column (my-auto, self-center)
+                - Sensible size with object-fit: contain to preserve proportions
+                - Balances empty space above and below when fewer products exist
+                =============================================================== */}
+            <div className="col-span-5 sm:col-span-5 lg:col-span-5 flex flex-col justify-center items-center my-auto self-center h-full">
+              <div className="w-full flex flex-col items-center justify-center my-auto">
+                {/* Outfit Photo Frame */}
+                <div className="w-full relative rounded-xl sm:rounded-2xl overflow-hidden bg-stone-50 border border-stone-200/90 shadow-2xs flex items-center justify-center max-h-[380px] sm:max-h-[500px]">
+                  <img
+                    src={selectedImage}
+                    alt={outfit.name}
+                    className="w-full h-auto max-h-[350px] sm:max-h-[460px] object-contain object-center rounded-xl bg-stone-50"
+                  />
+
+                  {/* Corner Like Button */}
                   <button
-                    onClick={() => setLiked(!liked)}
-                    className={`p-2 rounded-full backdrop-blur-xs shadow-md transition-colors cursor-pointer ${
+                    onClick={() => toggleLike(outfit.id)}
+                    className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 p-1.5 sm:p-2 rounded-full backdrop-blur-xs shadow-md transition-all active:scale-90 cursor-pointer ${
                       liked ? 'bg-red-500 text-white' : 'bg-stone-900/80 text-white hover:bg-stone-900'
                     }`}
-                    aria-label="Save look"
+                    aria-label={liked ? 'Unlike outfit' : 'Like outfit'}
+                    title={liked ? 'Liked' : 'Like'}
                   >
-                    <Heart className="w-4 h-4 fill-current" />
+                    <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
                   </button>
+
+                  {/* Trending Badge */}
+                  {outfit.isTrending && (
+                    <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider bg-stone-900/90 text-amber-300 px-1.5 sm:px-2 py-0.5 rounded shadow-2xs flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                      <span className="hidden sm:inline">Trending Look</span>
+                      <span className="sm:hidden">Trend</span>
+                    </span>
+                  )}
                 </div>
 
-                {/* Pieces Count Pill */}
-                <div className="absolute bottom-3 right-3 z-10">
-                  <span className="text-[10px] font-semibold bg-stone-900/90 text-white px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-white/20">
-                    <Layers className="w-3 h-3 text-amber-400" />
-                    <span>{outfit.items.length} Shoppable Pieces</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Clickable Photo Thumbnails Switcher */}
-              {imageList.length > 1 && (
-                <div className="p-3 bg-stone-50 border-t border-stone-200">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block mb-2">
-                    Click Thumbnail to Switch Photo:
-                  </span>
-                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                {/* Photo Angle Switcher Thumbnails (if multiple images exist) */}
+                {imageList.length > 1 && (
+                  <div className="w-full flex items-center justify-center gap-1.5 mt-2 sm:mt-2.5 overflow-x-auto no-scrollbar py-0.5">
                     {imageList.map((img, idx) => (
                       <button
                         key={idx}
                         onClick={() => setSelectedImage(img)}
-                        className={`w-14 h-16 sm:w-16 sm:h-20 rounded-lg overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
+                        className={`w-7 h-9 sm:w-11 sm:h-14 rounded-lg border-2 transition-all shrink-0 overflow-hidden cursor-pointer ${
                           selectedImage === img
-                            ? 'border-amber-500 ring-2 ring-amber-400/30 scale-102'
-                            : 'border-stone-200 hover:border-stone-400 opacity-75 hover:opacity-100'
+                            ? 'border-amber-600 ring-2 ring-amber-400/40 scale-105'
+                            : 'border-stone-200 hover:border-stone-400 opacity-70 hover:opacity-100'
                         }`}
-                        aria-label={`View photo angle ${idx + 1}`}
+                        aria-label={`Photo angle ${idx + 1}`}
                       >
-                        <img
-                          src={img}
-                          alt={`${outfit.name} view ${idx + 1}`}
-                          className="w-full h-full object-cover object-center"
-                        />
+                        <img src={img} alt="" className="w-full h-full object-cover" />
                       </button>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Look Summary Box */}
-              <div className="p-4 sm:p-5 space-y-2">
-                <div className="flex items-center justify-between">
-                  {section && (
-                    <button
-                      onClick={() => onSelectSection(section.id)}
-                      className="text-[11px] font-bold uppercase tracking-widest text-amber-700 hover:underline block cursor-pointer"
-                    >
-                      {section.title}
-                    </button>
-                  )}
-                  {outfit.price && (
-                    <span className="text-xs font-bold text-stone-900 bg-amber-50 text-amber-950 border border-amber-200 px-2 py-0.5 rounded">
-                      Complete Look: {outfit.price}
-                    </span>
-                  )}
-                </div>
-
-                <h1 className="font-display text-lg sm:text-xl md:text-2xl font-bold text-stone-900 leading-snug">
-                  {outfit.name}
-                </h1>
-
-                {outfit.description && (
-                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-light">
-                    {outfit.description}
-                  </p>
                 )}
 
-                <div className="pt-2 flex items-center gap-2 text-xs text-stone-500">
-                  <span className="font-semibold text-stone-800">
-                    &ldquo;Wear Your Identity.&rdquo;
-                  </span>
-                  <span>•</span>
-                  <span>Curated by MineMart Stylists</span>
+                {/* Visual balance note / brand signature */}
+                <div className="mt-2 text-center text-[10px] sm:text-[11px] text-stone-400 hidden sm:block">
+                  <span className="italic font-display">&ldquo;Wear Your Identity.&rdquo;</span>
+                  <span className="mx-1.5">•</span>
+                  <span>Curated by MineMart</span>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* ===================================================================
-              RIGHT SIDE: The Five Individual Products or Accessories + "Buy Now"
-              =================================================================== */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Context Box */}
-            <div className="bg-amber-50/70 border border-amber-200/90 rounded-xl p-4 flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-amber-900">
-                  How to Shop This Outfit
-                </h3>
-                <p className="text-xs text-amber-800/95 leading-relaxed">
-                  Below are the <strong>5 matching pieces and accessories</strong> that make up this complete look. Click <strong>&quot;Buy Now&quot;</strong> on any product to open the official retailer website in a new tab.
-                </p>
+            {/* ===============================================================
+                RIGHT SIDE: List of Individual Products Belonging to This Outfit
+                Supports any number of products (3, 5, 7, 8 or more)
+                =============================================================== */}
+            <div className="col-span-7 sm:col-span-7 lg:col-span-7 flex flex-col justify-between min-w-0">
+              <div>
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100 text-[11px] sm:text-xs font-semibold text-stone-700">
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Matching Outfit Pieces ({outfit.items.length})</span>
+                  </div>
+                  <span className="text-[10px] text-amber-800 font-medium hidden sm:inline">
+                    Official Retailer Checkouts
+                  </span>
+                </div>
+
+                {/* Individual Products List: Flexible container accommodating 3, 5, 7, 8+ items */}
+                <div className="space-y-1.5 sm:space-y-2.5 pt-2 max-h-[460px] sm:max-h-[560px] overflow-y-auto pr-0.5 sm:pr-1 no-scrollbar">
+                  {outfit.items.map((item, index) => (
+                    <div
+                      key={item.id || index}
+                      onClick={() => setQuickViewProduct(item)}
+                      className="bg-stone-50 hover:bg-amber-50/40 border border-stone-200/80 hover:border-amber-300/80 rounded-xl p-1.5 sm:p-2.5 flex items-center justify-between gap-1.5 sm:gap-3 transition-all group cursor-pointer"
+                    >
+                      {/* Product Thumbnail */}
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        loading="lazy"
+                        className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg object-cover bg-white border border-stone-200 shrink-0 group-hover:scale-102 transition-transform"
+                      />
+
+                      {/* Product Name, Category & Price */}
+                      <div className="min-w-0 flex-1">
+                        {item.categoryTag && (
+                          <span className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold text-amber-800 block truncate leading-none mb-0.5">
+                            {item.categoryTag}
+                          </span>
+                        )}
+                        <h3
+                          className="text-[10px] sm:text-xs font-semibold text-stone-800 group-hover:text-stone-950 truncate leading-snug"
+                          title={item.name}
+                        >
+                          {item.name}
+                        </h3>
+                        {item.price && (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[9px] sm:text-xs font-bold text-stone-900">
+                              {typeof item.price === 'number'
+                                ? `₹${item.price.toLocaleString('en-IN')}`
+                                : item.price}
+                            </span>
+                            {item.originalPrice && (
+                              <span className="text-[8px] sm:text-[10px] text-stone-400 line-through hidden sm:inline">
+                                {typeof item.originalPrice === 'number'
+                                  ? `₹${item.originalPrice.toLocaleString('en-IN')}`
+                                  : item.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Shop Now Action Button (Opens centered quick-view popup) */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuickViewProduct(item);
+                        }}
+                        className="shrink-0 bg-stone-900 hover:bg-stone-800 active:scale-95 text-white text-[9px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg shadow-2xs flex items-center gap-0.5 sm:gap-1 transition-all cursor-pointer"
+                        aria-label={`Shop Now for ${item.name}`}
+                      >
+                        <span>Shop Now</span>
+                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* List Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-stone-200">
-              <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-700" />
-                <h3 className="font-display text-base sm:text-lg font-bold text-stone-900">
-                  Products in this Look ({outfit.items.length})
-                </h3>
+              {/* Bottom Quick Action Strip inside the Products Column */}
+              <div className="pt-2 sm:pt-3 mt-2 sm:mt-3 border-t border-stone-100 flex items-center justify-between gap-1 text-[10px] sm:text-xs text-stone-500">
+                <div className="flex items-center gap-1 text-[9px] sm:text-xs text-stone-600 truncate">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate">Direct checkout on partner retailers</span>
+                </div>
+
+                <button
+                  onClick={() => toggleWishlist(outfit.id)}
+                  className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg border text-[9px] sm:text-xs font-semibold transition-colors cursor-pointer shrink-0 ${
+                    wishlisted
+                      ? 'bg-amber-100 text-amber-900 border-amber-300'
+                      : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200'
+                  }`}
+                >
+                  <Bookmark className="w-3 h-3 fill-current" />
+                  <span>{wishlisted ? 'Saved' : 'Wishlist'}</span>
+                </button>
               </div>
-              <span className="text-[11px] text-stone-500 font-medium">
-                Tap &quot;Buy Now&quot; to shop on official store
-              </span>
-            </div>
-
-            {/* Grid of the 5 Individual Related Products */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
-              {outfit.items.map((item, index) => (
-                <ProductCard key={item.id} item={item} itemIndex={index} />
-              ))}
-            </div>
-
-            {/* Affiliate Guarantee Notice */}
-            <div className="bg-stone-100 border border-stone-200 rounded-xl p-4 text-xs text-stone-500 space-y-1">
-              <p className="font-semibold text-stone-800">
-                Official Retailer Integration &amp; Affiliate Disclosure
-              </p>
-              <p>
-                When you click &quot;Buy Now&quot;, you are redirected to authorized shopping portals (Myntra, Ajio, Amazon, Flipkart, or official brand stores). MineMart may earn a small affiliate commission at zero additional cost to you.
-              </p>
             </div>
           </div>
         </div>
+
+        {/* Look Description & Stylist Note Card */}
+        {outfit.description && (
+          <div className="mt-4 bg-white rounded-xl border border-stone-200 p-3.5 sm:p-4 space-y-1 text-xs">
+            <h3 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-amber-600" />
+              <span>Stylist &amp; Aesthetic Notes</span>
+            </h3>
+            <p className="text-stone-600 leading-relaxed text-xs sm:text-sm font-light">
+              {outfit.description}
+            </p>
+          </div>
+        )}
       </main>
 
       {/* More Outfits from This Section */}
       {relatedLooks.length > 0 && section && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-stone-200">
+        <section className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-6 sm:pt-8 border-t border-stone-200">
           <div className="flex items-end justify-between mb-4 pb-2 border-b border-stone-200">
             <div>
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-amber-700">
                 Keep Exploring
               </span>
-              <h2 className="font-display text-xl sm:text-2xl font-bold text-stone-900 mt-0.5">
+              <h2 className="font-display text-lg sm:text-2xl font-bold text-stone-900 mt-0.5">
                 More Looks from {section.title}
               </h2>
             </div>
@@ -297,6 +359,12 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
           </div>
         </section>
       )}
+
+      {/* Product Quick-View Popup / Modal */}
+      <ProductQuickViewModal
+        item={quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </div>
   );
 };
