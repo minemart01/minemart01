@@ -1,14 +1,3 @@
-/**
- * ============================================================================
- * SECTION 6: ETHNIC & FESTIVE ELEGANCE
- * File: src/data/section6.ts
- * Brand: MineMart Fashion — "Wear Your Identity"
- * ============================================================================
- * 
- * 10 traditional, festive, and ethnic celebration outfits with 5 individual related pieces each.
- * ============================================================================
- */
-
 import { SectionData } from './types';
 
 export const section6Data: SectionData = {
@@ -26,7 +15,7 @@ export const section6Data: SectionData = {
         'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80',
         'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80',
       ],
-      price: '₹5,999',
+      price: '₹5,9909',
       category: 'Ethnic Wear',
       sectionId: 'section6',
       description: 'Royal mustard and gold handloom Chanderi silk flared Anarkali paired with scalloped organza zari dupatta and handcrafted juttis.',
