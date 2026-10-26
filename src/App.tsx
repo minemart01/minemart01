@@ -49,9 +49,18 @@ function AppContent() {
     };
 
     handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => window.removeEventListener('popstate', handleHashChange);
   }, []);
+
+  // Assigning location.hash triggers anchor lookups (querySelector) that fail on
+  // values like "outfit=s1-o1", so update the URL through the History API instead.
+  const setHash = (hash: string) => {
+    const url = `${window.location.pathname}${window.location.search}${hash ? `#${hash}` : ''}`;
+    if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+      window.history.pushState(null, '', url);
+    }
+  };
 
   // Back to top scroll listener
   useEffect(() => {
@@ -64,13 +73,13 @@ function AppContent() {
 
   const navigateToHome = () => {
     setCurrentView('home');
-    window.location.hash = '';
+    setHash('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const navigateToWishlist = () => {
     setCurrentView('wishlist');
-    window.location.hash = 'saved';
+    setHash('saved');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -78,7 +87,7 @@ function AppContent() {
     setSelectedSectionId(sectionId);
     if (currentView !== 'home') {
       setCurrentView('home');
-      window.location.hash = `section=${sectionId}`;
+      setHash(`section=${sectionId}`);
       setTimeout(() => {
         const el = document.getElementById(sectionId);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -88,14 +97,14 @@ function AppContent() {
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
       }
-      window.location.hash = `section=${sectionId}`;
+      setHash(`section=${sectionId}`);
     }
   };
 
   const navigateToOutfit = (outfitId: string) => {
     setSelectedOutfitId(outfitId);
     setCurrentView('outfit-details');
-    window.location.hash = `outfit=${outfitId}`;
+    setHash(`outfit=${outfitId}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
