@@ -11,13 +11,28 @@ import { IntroScreen } from './components/IntroScreen';
 import { Home } from './pages/Home';
 import { OutfitDetails } from './pages/OutfitDetails';
 import { WishlistPage } from './pages/WishlistPage';
+import { AboutUs } from './pages/AboutUs';
+import { ContactUs } from './pages/ContactUs';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsAndConditions } from './pages/TermsAndConditions';
+import { AffiliateDisclosure } from './pages/AffiliateDisclosure';
 import { WishlistProvider, useWishlist } from './context/WishlistContext';
 import { ALL_SECTIONS } from './data/allSections';
-import { Sparkles, ShieldCheck, Heart, Home as HomeIcon, Compass, ArrowUp } from 'lucide-react';
+import { Sparkles, ShieldCheck, Heart, Home as HomeIcon, Compass, ArrowUp, FileText } from 'lucide-react';
+
+type ViewState =
+  | 'home'
+  | 'outfit-details'
+  | 'wishlist'
+  | 'about'
+  | 'contact'
+  | 'privacy'
+  | 'terms'
+  | 'affiliate-disclosure';
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState<boolean>(true);
-  const [currentView, setCurrentView] = useState<'home' | 'outfit-details' | 'wishlist'>('home');
+  const [currentView, setCurrentView] = useState<ViewState>('home');
   const [selectedSectionId, setSelectedSectionId] = useState<string>('section1');
   const [selectedOutfitId, setSelectedOutfitId] = useState<string>('s1-o1');
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -30,6 +45,16 @@ function AppContent() {
       const hash = window.location.hash.replace(/^#\/?/, '');
       if (hash === 'wishlist' || hash === 'saved') {
         setCurrentView('wishlist');
+      } else if (hash === 'about' || hash === 'about-us') {
+        setCurrentView('about');
+      } else if (hash === 'contact' || hash === 'contact-us') {
+        setCurrentView('contact');
+      } else if (hash === 'privacy' || hash === 'privacy-policy') {
+        setCurrentView('privacy');
+      } else if (hash === 'terms' || hash === 'terms-conditions' || hash === 'terms-and-conditions') {
+        setCurrentView('terms');
+      } else if (hash === 'affiliate' || hash === 'affiliate-disclosure') {
+        setCurrentView('affiliate-disclosure');
       } else if (hash.startsWith('outfit=')) {
         const outId = hash.replace('outfit=', '');
         setSelectedOutfitId(outId);
@@ -71,6 +96,12 @@ function AppContent() {
   const navigateToWishlist = () => {
     setCurrentView('wishlist');
     window.location.hash = 'saved';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToInfoPage = (view: ViewState, hash: string) => {
+    setCurrentView(view);
+    window.location.hash = hash;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -145,6 +176,29 @@ function AppContent() {
             onSelectSection={navigateToSection}
           />
         )}
+
+        {currentView === 'about' && (
+          <AboutUs
+            onNavigateHome={navigateToHome}
+            onSelectSection={navigateToSection}
+          />
+        )}
+
+        {currentView === 'contact' && (
+          <ContactUs onNavigateHome={navigateToHome} />
+        )}
+
+        {currentView === 'privacy' && (
+          <PrivacyPolicy onNavigateHome={navigateToHome} />
+        )}
+
+        {currentView === 'terms' && (
+          <TermsAndConditions onNavigateHome={navigateToHome} />
+        )}
+
+        {currentView === 'affiliate-disclosure' && (
+          <AffiliateDisclosure onNavigateHome={navigateToHome} />
+        )}
       </div>
 
       {/* 4. Back to Top Floating Button */}
@@ -207,34 +261,44 @@ function AppContent() {
       {/* 6. Clean, Professional Footer */}
       <footer className="bg-stone-950 text-stone-300 border-t border-stone-800 pt-12 pb-20 sm:pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          {/* Transparency & Affiliate Disclosure */}
+          {/* Transparency & Affiliate Disclosure Banner */}
           <div className="bg-stone-900/90 border border-stone-800 rounded-xl p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
               <div className="p-2 rounded-lg bg-amber-400/10 border border-amber-400/20 text-amber-400 shrink-0 mt-0.5">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
-                  <span>Affiliate Disclosure &amp; Official Checkouts</span>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-semibold text-white tracking-wide">
+                    Affiliate Disclosure &amp; Official Checkouts
+                  </h4>
                   <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 px-2 py-0.5 rounded bg-amber-400/15">
                     Verified
                   </span>
-                </h4>
+                </div>
                 <p className="text-xs text-stone-400 leading-relaxed max-w-3xl">
-                  MineMart Fashion is an independent style inspiration and outfit discovery platform. All &quot;Buy Now&quot; buttons open authorized partner websites (such as Myntra, Ajio, Amazon, and Flipkart). We do not collect payments or manage customer shopping carts. We may earn a small affiliate commission at zero additional cost to you.
+                  MineMart Fashion is an independent style inspiration and outfit discovery platform. All &quot;Buy Now&quot; and &quot;Shop Now&quot; buttons open authorized partner websites (such as Myntra, AJIO, Amazon, and Flipkart). We do not collect payments or manage customer shopping carts. We may earn a small affiliate commission at zero additional cost to you.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-xs font-medium text-stone-400 shrink-0">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>Direct Merchant Checkout</span>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={() => navigateToInfoPage('affiliate-disclosure', 'affiliate-disclosure')}
+                className="px-3.5 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-300 hover:text-amber-200 border border-stone-700 text-xs font-medium transition-colors cursor-pointer"
+              >
+                Read Full Disclosure
+              </button>
+              <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-stone-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span>Direct Merchant Checkout</span>
+              </div>
             </div>
           </div>
 
           {/* Navigation Links Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 pt-2">
             {/* Brand Column */}
-            <div className="space-y-3 md:col-span-1">
+            <div className="space-y-3 sm:col-span-2 md:col-span-1">
               <div className="flex items-center gap-2">
                 <span className="font-display text-2xl font-bold tracking-tight text-white">
                   MineMart
@@ -318,13 +382,100 @@ function AppContent() {
                 </li>
               </ul>
             </div>
+
+            {/* Information & Legal (The 5 Requested Pages) */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-white">
+                Company &amp; Legal
+              </h5>
+              <ul className="space-y-2 text-xs text-stone-400">
+                <li>
+                  <button
+                    onClick={() => navigateToInfoPage('about', 'about-us')}
+                    className="hover:text-amber-300 transition-colors cursor-pointer text-left"
+                  >
+                    About Us
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigateToInfoPage('contact', 'contact-us')}
+                    className="hover:text-amber-300 transition-colors cursor-pointer text-left"
+                  >
+                    Contact Us
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigateToInfoPage('privacy', 'privacy-policy')}
+                    className="hover:text-amber-300 transition-colors cursor-pointer text-left"
+                  >
+                    Privacy Policy
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigateToInfoPage('terms', 'terms-and-conditions')}
+                    className="hover:text-amber-300 transition-colors cursor-pointer text-left"
+                  >
+                    Terms &amp; Conditions
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigateToInfoPage('affiliate-disclosure', 'affiliate-disclosure')}
+                    className="hover:text-amber-300 transition-colors cursor-pointer text-left flex items-center gap-1"
+                  >
+                    <span>Affiliate Disclosure</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Dedicated 5 Footer Pages Links Row */}
+          <div className="border-t border-stone-800/80 pt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-stone-400 font-medium">
+            <button
+              onClick={() => navigateToInfoPage('about', 'about-us')}
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              About Us
+            </button>
+            <span className="text-stone-700 hidden sm:inline">•</span>
+            <button
+              onClick={() => navigateToInfoPage('contact', 'contact-us')}
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Contact Us
+            </button>
+            <span className="text-stone-700 hidden sm:inline">•</span>
+            <button
+              onClick={() => navigateToInfoPage('privacy', 'privacy-policy')}
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Privacy Policy
+            </button>
+            <span className="text-stone-700 hidden sm:inline">•</span>
+            <button
+              onClick={() => navigateToInfoPage('terms', 'terms-and-conditions')}
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Terms &amp; Conditions
+            </button>
+            <span className="text-stone-700 hidden sm:inline">•</span>
+            <button
+              onClick={() => navigateToInfoPage('affiliate-disclosure', 'affiliate-disclosure')}
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Affiliate Disclosure
+            </button>
           </div>
 
           {/* Bottom Copyright Strip */}
-          <div className="border-t border-stone-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-3">
+          <div className="border-t border-stone-800 pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-3">
             <p>© {new Date().getFullYear()} MineMart Fashion. &ldquo;Wear Your Identity.&rdquo; All rights reserved.</p>
             <p className="text-[11px] text-stone-500">
-              Inspired by Amazon, Flipkart, Myntra &amp; AJIO.
+              Independent fashion discovery. Links to Amazon, Flipkart, Myntra &amp; AJIO.
             </p>
           </div>
         </div>
