@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Mail, Clock, MessageSquare, ShieldCheck, Check, Copy } from 'lucide-react';
+import { ArrowLeft, Mail, Clock, MessageSquare, Check, Copy } from 'lucide-react';
 
 interface ContactUsProps {
   onNavigateHome: () => void;
@@ -7,12 +7,11 @@ interface ContactUsProps {
 
 export const ContactUs: React.FC<ContactUsProps> = ({ onNavigateHome }) => {
   const [copied, setCopied] = useState(false);
-  // Official placeholder for the owner to replace with their real email address
-  const placeholderEmail = 'minemartfashiom0085@gmail.com';
+  const contactEmail = 'minemartfashiom0085@gmail.com';
 
   const handleCopyEmail = () => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(placeholderEmail);
+      navigator.clipboard.writeText(contactEmail);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }
@@ -68,15 +67,18 @@ export const ContactUs: React.FC<ContactUsProps> = ({ onNavigateHome }) => {
             </div>
           </div>
 
-          {/* Email Placeholder Display Box */}
+          {/* Email Display Box */}
           <div className="p-4 sm:p-5 rounded-xl bg-stone-50 border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="space-y-1 text-center sm:text-left">
               <span className="text-[10px] uppercase font-bold tracking-wider text-amber-800">
                 Direct Contact Email:
               </span>
-              <div className="font-mono text-sm sm:text-base font-semibold text-stone-900 select-all">
-                {placeholderEmail}
-              </div>
+              <a
+                href={`mailto:${contactEmail}`}
+                className="font-mono text-sm sm:text-base font-semibold text-stone-900 hover:text-amber-700 transition-colors select-all block"
+              >
+                {contactEmail}
+              </a>
             </div>
 
             <button
@@ -95,19 +97,6 @@ export const ContactUs: React.FC<ContactUsProps> = ({ onNavigateHome }) => {
                 </>
               )}
             </button>
-          </div>
-
-          {/* Notice to Website Owner */}
-          <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 flex items-start gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-            <div className="leading-relaxed">
-              <strong className="font-semibold">Note for Site Administrator:</strong>{' '}
-              To receive emails from visitors, simply replace the placeholder{' '}
-              <code className="bg-white/80 px-1 py-0.5 rounded border border-amber-300 font-mono text-[11px]">
-                {placeholderEmail}
-              </code>{' '}
-              in <code className="bg-white/80 px-1 py-0.5 rounded border border-amber-300 font-mono text-[11px]">src/pages/ContactUs.tsx</code> with your actual preferred email address.
-            </div>
           </div>
         </div>
 
