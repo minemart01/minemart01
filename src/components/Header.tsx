@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ALL_SECTIONS } from '../data/allSections';
 import { useWishlist } from '../context/WishlistContext';
-import { isProductVisible, getVisibleProductCount } from '../utils/productVisibility';
+import { getVisibleOutfits, getVisibleProducts, getVisibleProductCount } from '../utils/productVisibility';
 import {
   Sparkles,
   Search,
@@ -39,16 +39,16 @@ export const Header: React.FC<HeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const { totalUniqueCount } = useWishlist();
 
-  // Collect all searchable outfits
-  const allOutfits = ALL_SECTIONS.flatMap((s) => s.outfits);
+  // Collect all searchable outfits that are visible according to rules
+  const allVisibleOutfits = getVisibleOutfits(ALL_SECTIONS.flatMap((s) => s.outfits));
 
   const query = searchQuery.trim().toLowerCase();
   const matchedOutfits = query
-    ? allOutfits.filter(
+    ? allVisibleOutfits.filter(
         (o) =>
           o.name.toLowerCase().includes(query) ||
           (o.description && o.description.toLowerCase().includes(query)) ||
-          o.items.some((i) => isProductVisible(i) && i.name.toLowerCase().includes(query))
+          getVisibleProducts(o.items, o.id).some((i) => i.name.toLowerCase().includes(query))
       )
     : [];
 
@@ -356,8 +356,8 @@ export const Header: React.FC<HeaderProps> = ({
                           {outfit.description}
                         </p>
                         <span className="text-[10px] text-stone-500 mt-0.5 block">
-                          {getVisibleProductCount(outfit.items) > 0
-                            ? `${getVisibleProductCount(outfit.items)} related ${getVisibleProductCount(outfit.items) === 1 ? 'piece' : 'pieces'} included`
+                          {getVisibleProductCount(outfit.items, outfit.id) > 0
+                            ? `${getVisibleProductCount(outfit.items, outfit.id)} related ${getVisibleProductCount(outfit.items, outfit.id) === 1 ? 'piece' : 'pieces'} included`
                             : 'Curated lookbook'}
                         </span>
                       </div>

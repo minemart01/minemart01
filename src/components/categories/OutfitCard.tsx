@@ -3,6 +3,8 @@ import { Outfit } from '../../types';
 import { getItemsByOutfit } from '../../data/outfitItems';
 import { Sparkles, ArrowRight, Layers, Tag } from 'lucide-react';
 
+import { isProductVisible, isOutfitStatusEnabled } from '../../utils/productVisibility';
+
 interface OutfitCardProps {
   outfit: Outfit;
   onClick: () => void;
@@ -15,7 +17,10 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
   variant = 'grid',
 }) => {
   const [imageError, setImageError] = useState(false);
-  const items = getItemsByOutfit(outfit.id);
+  const rawItems = getItemsByOutfit(outfit.id);
+  const items = isOutfitStatusEnabled(outfit.id)
+    ? rawItems.filter((item) => isProductVisible(item, outfit.id))
+    : [];
   const itemCount = items.length;
 
   // Format first item price or estimated total

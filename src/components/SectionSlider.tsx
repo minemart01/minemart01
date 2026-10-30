@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { SectionData } from '../data/types';
 import { OutfitCard } from './OutfitCard';
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
+import { getVisibleOutfits } from '../utils/productVisibility';
 
 interface SectionSliderProps {
   section: SectionData;
@@ -17,6 +18,8 @@ export const SectionSlider: React.FC<SectionSliderProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const visibleOutfits = getVisibleOutfits(section.outfits);
 
   const checkScroll = () => {
     const el = scrollRef.current;
@@ -37,7 +40,7 @@ export const SectionSlider: React.FC<SectionSliderProps> = ({
       if (el) el.removeEventListener('scroll', checkScroll);
       window.removeEventListener('resize', checkScroll);
     };
-  }, [section.outfits]);
+  }, [visibleOutfits]);
 
   const scroll = (direction: 'left' | 'right') => {
     const el = scrollRef.current;
@@ -62,7 +65,7 @@ export const SectionSlider: React.FC<SectionSliderProps> = ({
               </span>
             )}
             <span className="text-stone-500 font-medium hidden sm:inline">
-              {section.outfits.length} Curated Looks
+              {visibleOutfits.length} {visibleOutfits.length === 1 ? 'Curated Look' : 'Curated Looks'}
             </span>
           </div>
 
@@ -78,50 +81,59 @@ export const SectionSlider: React.FC<SectionSliderProps> = ({
         </div>
 
         {/* Desktop Slider Arrows */}
-        <div className="hidden sm:flex items-center gap-2">
-          <button
-            onClick={() => scroll('left')}
-            disabled={!canScrollLeft}
-            className={`p-2 rounded-full border border-stone-200 bg-white transition-colors focus:outline-none cursor-pointer ${
-              canScrollLeft
-                ? 'text-stone-800 hover:bg-stone-100 hover:border-stone-400 shadow-2xs'
-                : 'text-stone-300 border-stone-100 cursor-not-allowed opacity-40'
-            }`}
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            disabled={!canScrollRight}
-            className={`p-2 rounded-full border border-stone-200 bg-white transition-colors focus:outline-none cursor-pointer ${
-              canScrollRight
-                ? 'text-stone-800 hover:bg-stone-100 hover:border-stone-400 shadow-2xs'
-                : 'text-stone-300 border-stone-100 cursor-not-allowed opacity-40'
-            }`}
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+        {visibleOutfits.length > 0 && (
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={() => scroll('left')}
+              disabled={!canScrollLeft}
+              className={`p-2 rounded-full border border-stone-200 bg-white transition-colors focus:outline-none cursor-pointer ${
+                canScrollLeft
+                  ? 'text-stone-800 hover:bg-stone-100 hover:border-stone-400 shadow-2xs'
+                  : 'text-stone-300 border-stone-100 cursor-not-allowed opacity-40'
+              }`}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => scroll('right')}
+              disabled={!canScrollRight}
+              className={`p-2 rounded-full border border-stone-200 bg-white transition-colors focus:outline-none cursor-pointer ${
+                canScrollRight
+                  ? 'text-stone-800 hover:bg-stone-100 hover:border-stone-400 shadow-2xs'
+                  : 'text-stone-300 border-stone-100 cursor-not-allowed opacity-40'
+              }`}
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Horizontal Product Slider with Smooth Snap */}
-      <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div
-          ref={scrollRef}
-          className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory py-1 scroll-smooth"
-        >
-          {section.outfits.map((outfit) => (
-            <OutfitCard
-              key={outfit.id}
-              outfit={outfit}
-              onClick={() => onSelectOutfit(outfit.id)}
-              variant="slider"
-            />
-          ))}
+      {visibleOutfits.length > 0 ? (
+        <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div
+            ref={scrollRef}
+            className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory py-1 scroll-smooth"
+          >
+            {visibleOutfits.map((outfit) => (
+              <OutfitCard
+                key={outfit.id}
+                outfit={outfit}
+                onClick={() => onSelectOutfit(outfit.id)}
+                variant="slider"
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="py-8 px-4 text-center rounded-xl bg-stone-100/60 border border-dashed border-stone-200 text-stone-500 text-xs">
+          <p className="font-semibold text-stone-700">Curating new looks for {section.title}</p>
+          <p className="text-[11px] text-stone-400 mt-1">Looks in this section are currently being updated.</p>
+        </div>
+      )}
     </section>
   );
 };

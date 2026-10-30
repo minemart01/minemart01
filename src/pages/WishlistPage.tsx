@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useWishlist } from '../context/WishlistContext';
 import { ALL_OUTFITS, getOutfitById, ALL_SECTIONS } from '../data/allSections';
 import { Outfit } from '../data/types';
-import { getVisibleProductCount } from '../utils/productVisibility';
+import { getVisibleProductCount, getVisibleOutfits } from '../utils/productVisibility';
 import {
   Heart,
   Bookmark,
@@ -53,10 +53,12 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
       ? likedIds
       : wishlistIds;
 
-  // Resolve full outfit objects from ALL_OUTFITS
-  const outfits: Outfit[] = activeIds
-    .map((id) => getOutfitById(id))
-    .filter((o): o is Outfit => Boolean(o));
+  // Resolve full outfit objects from ALL_OUTFITS that are currently visible
+  const outfits: Outfit[] = getVisibleOutfits(
+    activeIds
+      .map((id) => getOutfitById(id))
+      .filter((o): o is Outfit => Boolean(o))
+  );
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
@@ -314,7 +316,7 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
                       <div className="absolute bottom-2.5 right-2.5 z-10">
                         <span className="text-[10px] font-semibold bg-stone-900/85 backdrop-blur-xs text-white px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs border border-white/20">
                           <Layers className="w-2.5 h-2.5 text-amber-400" />
-                          <span>{getVisibleProductCount(outfit.items) > 0 ? `${getVisibleProductCount(outfit.items)} ${getVisibleProductCount(outfit.items) === 1 ? 'Piece' : 'Pieces'}` : 'Curated Look'}</span>
+                          <span>{getVisibleProductCount(outfit.items, outfit.id) > 0 ? `${getVisibleProductCount(outfit.items, outfit.id)} ${getVisibleProductCount(outfit.items, outfit.id) === 1 ? 'Piece' : 'Pieces'}` : 'Curated Look'}</span>
                         </span>
                       </div>
 

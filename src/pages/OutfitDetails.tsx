@@ -4,7 +4,7 @@ import { ALL_SECTIONS, getOutfitById } from '../data/allSections';
 import { OutfitCard } from '../components/OutfitCard';
 import { ProductQuickViewModal } from '../components/ProductQuickViewModal';
 import { useWishlist } from '../context/WishlistContext';
-import { isProductVisible, getVisibleProducts } from '../utils/productVisibility';
+import { isProductVisible, getVisibleProducts, isOutfitVisible, getVisibleOutfits } from '../utils/productVisibility';
 import {
   ArrowLeft,
   ChevronRight,
@@ -31,26 +31,31 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
   onSelectSection,
   onSelectOutfit,
 }) => {
-  const outfit = getOutfitById(outfitId) || ALL_SECTIONS[0].outfits[0];
-  const section = ALL_SECTIONS.find((s) => s.id === outfit.sectionId);
-  const visibleItems = getVisibleProducts(outfit.items);
+  const rawOutfit = getOutfitById(outfitId);
+  const isVisible = rawOutfit ? isOutfitVisible(rawOutfit) : false;
+
+  const outfit = isVisible && rawOutfit ? rawOutfit : null;
+  const section = outfit ? ALL_SECTIONS.find((s) => s.id === outfit.sectionId) : null;
+  const visibleItems = outfit ? getVisibleProducts(outfit.items, outfit.id) : [];
 
   const { isLiked, isWishlisted, toggleLike, toggleWishlist } = useWishlist();
-  const liked = isLiked(outfit.id);
-  const wishlisted = isWishlisted(outfit.id);
+  const liked = outfit ? isLiked(outfit.id) : false;
+  const wishlisted = outfit ? isWishlisted(outfit.id) : false;
 
   // Images for thumbnail switcher (defaults to [outfit.image] if not specified)
-  const imageList = outfit.images && outfit.images.length > 0 ? outfit.images : [outfit.image];
-  const [selectedImage, setSelectedImage] = useState<string>(imageList[0]);
+  const imageList = outfit && outfit.images && outfit.images.length > 0 ? outfit.images : outfit ? [outfit.image] : [];
+  const [selectedImage, setSelectedImage] = useState<string>(imageList[0] || '');
   const [copied, setCopied] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<ProductItem | null>(null);
 
   // Sync selected image if outfit changes
   React.useEffect(() => {
-    setSelectedImage((outfit.images && outfit.images[0]) || outfit.image);
+    if (outfit) {
+      setSelectedImage((outfit.images && outfit.images[0]) || outfit.image);
+    }
     setCopied(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [outfitId]);
+  }, [outfitId, outfit]);
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -60,10 +65,37 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
     }
   };
 
-  // Other looks from the same section
-  const relatedLooks = section
-    ? section.outfits.filter((o) => o.id !== outfit.id).slice(0, 4)
+  // Other looks from the same section (only visible looks)
+  const relatedLooks = section && outfit
+    ? getVisibleOutfits(section.outfits.filter((o) => o.id !== outfit.id)).slice(0, 4)
     : [];
+
+  // If outfit is hidden (status false, missing, or no eligible products), show clean unavailable state
+  if (!outfit) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-6">
+        <div className="w-16 h-16 rounded-full bg-stone-150 text-stone-500 flex items-center justify-center mx-auto">
+          <Sparkles className="w-8 h-8 text-amber-600" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="font-display text-2xl font-bold text-stone-900">
+            This Curated Look is Currently Unavailable
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
+            The items for this style edit are being updated or are not currently available for retail shopping. Please explore our other curated looks.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <button
+            onClick={onNavigateHome}
+            className="px-5 py-2.5 rounded-lg bg-stone-900 text-white text-xs font-semibold uppercase tracking-wider hover:bg-stone-800 transition-colors cursor-pointer"
+          >
+            Return to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 sm:space-y-8 pb-20">
@@ -382,7 +414,7 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
 
       {/* Product Quick-View Popup / Modal */}
       <ProductQuickViewModal
-        item={quickViewProduct && isProductVisible(quickViewProduct) ? quickViewProduct : null}
+        item={quickViewProduct && isProductVisible(quickViewProduct, outfit.id) ? quickViewProduct : null}
         onClose={() => setQuickViewProduct(null)}
       />
     </div>

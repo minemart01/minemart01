@@ -18,7 +18,7 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
   const [imgError, setImgError] = useState(false);
   const { isLiked, toggleLike } = useWishlist();
   const liked = isLiked(outfit.id);
-  const visibleCount = getVisibleProductCount(outfit.items);
+  const visibleCount = getVisibleProductCount(outfit.items, outfit.id);
 
   // Fallback fashion image
   const displayImage = imgError
