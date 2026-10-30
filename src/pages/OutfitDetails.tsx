@@ -4,6 +4,7 @@ import { ALL_SECTIONS, getOutfitById } from '../data/allSections';
 import { OutfitCard } from '../components/OutfitCard';
 import { ProductQuickViewModal } from '../components/ProductQuickViewModal';
 import { useWishlist } from '../context/WishlistContext';
+import { isProductVisible, getVisibleProducts } from '../utils/productVisibility';
 import {
   ArrowLeft,
   ChevronRight,
@@ -32,6 +33,7 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
 }) => {
   const outfit = getOutfitById(outfitId) || ALL_SECTIONS[0].outfits[0];
   const section = ALL_SECTIONS.find((s) => s.id === outfit.sectionId);
+  const visibleItems = getVisibleProducts(outfit.items);
 
   const { isLiked, isWishlisted, toggleLike, toggleWishlist } = useWishlist();
   const liked = isLiked(outfit.id);
@@ -121,7 +123,9 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
                   <span>Complete the Look</span>
                 </span>
                 <span className="text-[10px] sm:text-xs text-stone-500 font-medium">
-                  {outfit.items.length} Shoppable Pieces
+                  {visibleItems.length > 0
+                    ? `${visibleItems.length} Shoppable ${visibleItems.length === 1 ? 'Piece' : 'Pieces'}`
+                    : 'Curated Lookbook'}
                 </span>
               </div>
               <h1 className="font-display text-base sm:text-2xl font-bold text-stone-900 leading-snug mt-1.5">
@@ -217,76 +221,92 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
                 <div className="flex items-center justify-between pb-2 border-b border-stone-100 text-[11px] sm:text-xs font-semibold text-stone-700">
                   <div className="flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-amber-700" />
-                    <span>Matching Outfit Pieces ({outfit.items.length})</span>
+                    <span>Matching Outfit Pieces ({visibleItems.length})</span>
                   </div>
                   <span className="text-[10px] text-amber-800 font-medium hidden sm:inline">
                     Official Retailer Checkouts
                   </span>
                 </div>
 
-                {/* Individual Products List: Flexible container accommodating 3, 5, 7, 8+ items */}
-                <div className="space-y-1.5 sm:space-y-2.5 pt-2 max-h-[460px] sm:max-h-[560px] overflow-y-auto pr-0.5 sm:pr-1 no-scrollbar">
-                  {outfit.items.map((item, index) => (
-                    <div
-                      key={item.id || index}
-                      onClick={() => setQuickViewProduct(item)}
-                      className="bg-stone-50 hover:bg-amber-50/40 border border-stone-200/80 hover:border-amber-300/80 rounded-xl p-1.5 sm:p-2.5 flex items-center justify-between gap-1.5 sm:gap-3 transition-all group cursor-pointer"
-                    >
-                      {/* Product Thumbnail */}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        loading="lazy"
-                        className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg object-cover bg-white border border-stone-200 shrink-0 group-hover:scale-102 transition-transform"
-                      />
-
-                      {/* Product Name, Category & Price */}
-                      <div className="min-w-0 flex-1">
-                        {item.categoryTag && (
-                          <span className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold text-amber-800 block truncate leading-none mb-0.5">
-                            {item.categoryTag}
-                          </span>
-                        )}
-                        <h3
-                          className="text-[10px] sm:text-xs font-semibold text-stone-800 group-hover:text-stone-950 truncate leading-snug"
-                          title={item.name}
-                        >
-                          {item.name}
-                        </h3>
-                        {item.price && (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[9px] sm:text-xs font-bold text-stone-900">
-                              {typeof item.price === 'number'
-                                ? `₹${item.price.toLocaleString('en-IN')}`
-                                : item.price}
-                            </span>
-                            {item.originalPrice && (
-                              <span className="text-[8px] sm:text-[10px] text-stone-400 line-through hidden sm:inline">
-                                {typeof item.originalPrice === 'number'
-                                  ? `₹${item.originalPrice.toLocaleString('en-IN')}`
-                                  : item.originalPrice}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Shop Now Action Button (Opens centered quick-view popup) */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setQuickViewProduct(item);
-                        }}
-                        className="shrink-0 bg-stone-900 hover:bg-stone-800 active:scale-95 text-white text-[9px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg shadow-2xs flex items-center gap-0.5 sm:gap-1 transition-all cursor-pointer"
-                        aria-label={`Shop Now for ${item.name}`}
+                {/* Individual Products List: Flexible container accommodating any number of active items */}
+                {visibleItems.length > 0 ? (
+                  <div className="space-y-1.5 sm:space-y-2.5 pt-2 max-h-[460px] sm:max-h-[560px] overflow-y-auto pr-0.5 sm:pr-1 no-scrollbar">
+                    {visibleItems.map((item, index) => (
+                      <div
+                        key={item.id || index}
+                        onClick={() => setQuickViewProduct(item)}
+                        className="bg-stone-50 hover:bg-amber-50/40 border border-stone-200/80 hover:border-amber-300/80 rounded-xl p-1.5 sm:p-2.5 flex items-center justify-between gap-1.5 sm:gap-3 transition-all group cursor-pointer"
                       >
-                        <span>Shop Now</span>
-                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
-                      </button>
+                        {/* Product Thumbnail */}
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          loading="lazy"
+                          className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg object-cover bg-white border border-stone-200 shrink-0 group-hover:scale-102 transition-transform"
+                        />
+
+                        {/* Product Name, Category & Price */}
+                        <div className="min-w-0 flex-1">
+                          {item.categoryTag && (
+                            <span className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold text-amber-800 block truncate leading-none mb-0.5">
+                              {item.categoryTag}
+                            </span>
+                          )}
+                          <h3
+                            className="text-[10px] sm:text-xs font-semibold text-stone-800 group-hover:text-stone-950 truncate leading-snug"
+                            title={item.name}
+                          >
+                            {item.name}
+                          </h3>
+                          {item.price && (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[9px] sm:text-xs font-bold text-stone-900">
+                                {typeof item.price === 'number'
+                                  ? `₹${item.price.toLocaleString('en-IN')}`
+                                  : item.price}
+                              </span>
+                              {item.originalPrice && (
+                                <span className="text-[8px] sm:text-[10px] text-stone-400 line-through hidden sm:inline">
+                                  {typeof item.originalPrice === 'number'
+                                    ? `₹${item.originalPrice.toLocaleString('en-IN')}`
+                                    : item.originalPrice}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Shop Now Action Button (Opens centered quick-view popup) */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setQuickViewProduct(item);
+                          }}
+                          className="shrink-0 bg-stone-900 hover:bg-stone-800 active:scale-95 text-white text-[9px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg shadow-2xs flex items-center gap-0.5 sm:gap-1 transition-all cursor-pointer"
+                          aria-label={`Shop Now for ${item.name}`}
+                        >
+                          <span>Shop Now</span>
+                          <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-8 sm:py-12 px-4 text-center bg-stone-50/70 border border-dashed border-stone-200 rounded-xl my-3 space-y-2">
+                    <div className="w-9 h-9 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-700">
+                      <Sparkles className="w-4 h-4 text-amber-600" />
                     </div>
-                  ))}
-                </div>
+                    <div className="space-y-1">
+                      <h4 className="text-xs sm:text-sm font-semibold text-stone-800">
+                        Pieces Being Curated
+                      </h4>
+                      <p className="text-[11px] sm:text-xs text-stone-500 max-w-xs mx-auto leading-relaxed">
+                        Individual shopping links for this outfit are currently being refreshed by our styling team.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Bottom Quick Action Strip inside the Products Column */}
@@ -362,7 +382,7 @@ export const OutfitDetails: React.FC<OutfitDetailsProps> = ({
 
       {/* Product Quick-View Popup / Modal */}
       <ProductQuickViewModal
-        item={quickViewProduct}
+        item={quickViewProduct && isProductVisible(quickViewProduct) ? quickViewProduct : null}
         onClose={() => setQuickViewProduct(null)}
       />
     </div>

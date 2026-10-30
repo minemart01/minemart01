@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useWishlist } from '../context/WishlistContext';
 import { ALL_OUTFITS, getOutfitById, ALL_SECTIONS } from '../data/allSections';
 import { Outfit } from '../data/types';
+import { getVisibleProductCount } from '../utils/productVisibility';
 import {
   Heart,
   Bookmark,
@@ -313,7 +314,7 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
                       <div className="absolute bottom-2.5 right-2.5 z-10">
                         <span className="text-[10px] font-semibold bg-stone-900/85 backdrop-blur-xs text-white px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs border border-white/20">
                           <Layers className="w-2.5 h-2.5 text-amber-400" />
-                          <span>{outfit.items.length} Pieces</span>
+                          <span>{getVisibleProductCount(outfit.items) > 0 ? `${getVisibleProductCount(outfit.items)} ${getVisibleProductCount(outfit.items) === 1 ? 'Piece' : 'Pieces'}` : 'Curated Look'}</span>
                         </span>
                       </div>
 

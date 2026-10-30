@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outfit } from '../data/types';
 import { Layers, ArrowRight, Sparkles, Heart } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
+import { getVisibleProductCount } from '../utils/productVisibility';
 
 interface OutfitCardProps {
   outfit: Outfit;
@@ -17,6 +18,7 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
   const [imgError, setImgError] = useState(false);
   const { isLiked, toggleLike } = useWishlist();
   const liked = isLiked(outfit.id);
+  const visibleCount = getVisibleProductCount(outfit.items);
 
   // Fallback fashion image
   const displayImage = imgError
@@ -70,11 +72,11 @@ export const OutfitCard: React.FC<OutfitCardProps> = ({
           <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-current text-white' : 'text-stone-200'}`} />
         </button>
 
-        {/* 5 Pieces Count Badge */}
+        {/* Pieces Count Badge */}
         <div className="absolute bottom-2.5 right-2.5 z-10">
           <span className="text-[10px] font-semibold bg-stone-900/85 backdrop-blur-xs text-white px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs border border-white/20">
             <Layers className="w-2.5 h-2.5 text-amber-400" />
-            <span>{outfit.items.length} Pieces</span>
+            <span>{visibleCount > 0 ? `${visibleCount} ${visibleCount === 1 ? 'Piece' : 'Pieces'}` : 'Curated Look'}</span>
           </span>
         </div>
       </div>

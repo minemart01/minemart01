@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ALL_SECTIONS } from '../data/allSections';
 import { useWishlist } from '../context/WishlistContext';
+import { isProductVisible, getVisibleProductCount } from '../utils/productVisibility';
 import {
   Sparkles,
   Search,
@@ -47,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
         (o) =>
           o.name.toLowerCase().includes(query) ||
           (o.description && o.description.toLowerCase().includes(query)) ||
-          o.items.some((i) => i.name.toLowerCase().includes(query))
+          o.items.some((i) => isProductVisible(i) && i.name.toLowerCase().includes(query))
       )
     : [];
 
@@ -355,7 +356,9 @@ export const Header: React.FC<HeaderProps> = ({
                           {outfit.description}
                         </p>
                         <span className="text-[10px] text-stone-500 mt-0.5 block">
-                          {outfit.items.length} related pieces included
+                          {getVisibleProductCount(outfit.items) > 0
+                            ? `${getVisibleProductCount(outfit.items)} related ${getVisibleProductCount(outfit.items) === 1 ? 'piece' : 'pieces'} included`
+                            : 'Curated lookbook'}
                         </span>
                       </div>
                       <ArrowRight className="w-4 h-4 text-stone-400 shrink-0" />

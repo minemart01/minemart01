@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ProductItem } from '../data/types';
+import { isProductVisible } from '../utils/productVisibility';
 import {
   X,
   ExternalLink,
@@ -37,7 +38,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     setActiveImgIdx(0);
   }, [item]);
 
-  if (!item) return null;
+  if (!item || !isProductVisible(item)) return null;
 
   // Resolve gallery images: support multiple images or fallback to single primary image
   const imageList: string[] =
