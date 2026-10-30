@@ -19,7 +19,7 @@ export const section2Data: SectionData = {
   outfits: [
     {
       id: 's2-o1',
-      name: 'Unstructured Linen Blazer & Pleated Chino Look',
+      name: '...',
       image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
       images: [
         'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',

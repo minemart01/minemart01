@@ -157,7 +157,7 @@ export const PRODUCTS: SimpleProduct[] = [
   // 1. Men's Linen-Wool Blazer (MineMart Direct)
   {
     id: "prod-101",
-    name: "Unstructured Linen-Wool Blend Blazer",
+    name: "...",
     brand: "MineMart Atelier",
     price: 189,
     originalPrice: 249,
